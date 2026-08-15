@@ -1,0 +1,67 @@
+name: Publish TestFlight beta
+
+on:
+  workflow_dispatch:
+    inputs:
+      bootstrap_app:
+        description: Create the Bundle ID and App Store Connect record first
+        required: true
+        type: boolean
+        default: true
+
+concurrency:
+  group: oneclick-testflight
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: macos-26
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    env:
+      BUNDLE_ID: kz.oneclick.app
+      MATCH_GIT_URL: https://github.com/${{ github.repository }}.git
+      MATCH_GIT_BRANCH: certificates
+      BUILD_NUMBER: ${{ github.run_number }}
+      GITHUB_TOKEN: ${{ github.token }}
+      ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+      ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+      ASC_API_KEY_BASE64: ${{ secrets.ASC_API_KEY_BASE64 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required Apple secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in ASC_API_KEY_ID ASC_API_ISSUER_ID ASC_API_KEY_BASE64 APPLE_TEAM_ID MATCH_PASSWORD; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "Missing required secret: $name"
+              exit 1
+            fi
+          done
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - run: flutter pub get
+      - run: flutter analyze --fatal-infos
+      - run: flutter test
+
+      - name: Create App Store Connect app record
+        if: ${{ inputs.bootstrap_app }}
+        run: bundle exec fastlane ios bootstrap
+
+      - name: Build and upload to TestFlight
+        run: bundle exec fastlane ios beta
