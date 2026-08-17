@@ -8,6 +8,21 @@ on:
         required: true
         type: boolean
         default: true
+      bundle_id:
+        description: Bundle ID (use the beta ID on Dias's personal account)
+        required: true
+        type: string
+        default: kz.oneclick.beta
+      app_name:
+        description: App Store Connect app name
+        required: true
+        type: string
+        default: OneClick.kz Beta
+      app_sku:
+        description: App Store Connect SKU
+        required: true
+        type: string
+        default: ONECLICK-KZ-BETA-IOS
 
 concurrency:
   group: oneclick-testflight
@@ -20,7 +35,9 @@ jobs:
     permissions:
       contents: write
     env:
-      BUNDLE_ID: kz.oneclick.app
+      BUNDLE_ID: ${{ inputs.bundle_id }}
+      APP_NAME: ${{ inputs.app_name }}
+      APP_SKU: ${{ inputs.app_sku }}
       MATCH_GIT_URL: https://github.com/${{ github.repository }}.git
       MATCH_GIT_BRANCH: certificates
       BUILD_NUMBER: ${{ github.run_number }}

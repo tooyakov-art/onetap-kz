@@ -1,7 +1,12 @@
 # OneClick.kz TestFlight
 
-The app is configured with bundle identifier `kz.oneclick.app` and version
-`0.1.0`. Publishing is intentionally manual and fail-closed.
+The production app is configured with bundle identifier `kz.oneclick.app` and
+version `0.1.0`. Publishing is intentionally manual and fail-closed.
+
+For a beta uploaded through Dias's individual Apple Developer account, the
+workflow defaults to `kz.oneclick.beta` and `OneClick.kz Beta`. This preserves
+the final `kz.oneclick.app` identifier for the client's organization account;
+do not register the production identifier in the individual account.
 
 Repository secrets required by `.github/workflows/testflight.yml`:
 
