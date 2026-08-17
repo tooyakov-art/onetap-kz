@@ -79,6 +79,8 @@ jobs:
       - name: Create App Store Connect app record
         if: ${{ inputs.bootstrap_app }}
         run: bundle exec fastlane ios bootstrap
+        working-directory: ios
 
       - name: Build and upload to TestFlight
         run: bundle exec fastlane ios beta
+        working-directory: ios
