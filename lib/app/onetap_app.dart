@@ -5,14 +5,14 @@ import '../features/catalog/data/demo_catalog_repository.dart';
 import '../features/order/application/order_draft.dart';
 import '../features/shell/presentation/root_shell.dart';
 
-class OneClickApp extends StatefulWidget {
-  const OneClickApp({super.key});
+class OneTapApp extends StatefulWidget {
+  const OneTapApp({super.key});
 
   @override
-  State<OneClickApp> createState() => _OneClickAppState();
+  State<OneTapApp> createState() => _OneTapAppState();
 }
 
-class _OneClickAppState extends State<OneClickApp> {
+class _OneTapAppState extends State<OneTapApp> {
   late final DemoCatalogRepository _catalog;
   late final OrderDraft _orderDraft;
 
@@ -33,7 +33,7 @@ class _OneClickAppState extends State<OneClickApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'OneClick.kz',
+      title: 'OneTap.kz',
       theme: AppTheme.light,
       home: RootShell(catalog: _catalog, orderDraft: _orderDraft),
     );

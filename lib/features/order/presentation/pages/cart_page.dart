@@ -64,7 +64,7 @@ class _CartPageState extends State<CartPage> {
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Text(
-                          'OneClick сам разделит заказ на ${grouped.length} заявки поставщикам.',
+                          'OneTap сам разделит заказ на ${grouped.length} заявки поставщикам.',
                           style: theme.textTheme.bodyLarge,
                         ),
                       ),

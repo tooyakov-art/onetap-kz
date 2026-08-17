@@ -12,20 +12,20 @@ on:
         description: Bundle ID (use the beta ID on Dias's personal account)
         required: true
         type: string
-        default: kz.oneclick.beta
+        default: kz.onetap.beta
       app_name:
         description: App Store Connect app name
         required: true
         type: string
-        default: OneClick.kz Beta
+        default: OneTap.kz Beta
       app_sku:
         description: App Store Connect SKU
         required: true
         type: string
-        default: ONECLICK-KZ-BETA-IOS
+        default: ONETAP-KZ-BETA-IOS
 
 concurrency:
-  group: oneclick-testflight
+  group: onetap-testflight
   cancel-in-progress: false
 
 jobs:

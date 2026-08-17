@@ -1,4 +1,4 @@
-package kz.oneclick.app
+package kz.onetap.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,2 +1,2 @@
-app_identifier(ENV.fetch('BUNDLE_ID', 'kz.oneclick.app'))
+app_identifier(ENV.fetch('BUNDLE_ID', 'kz.onetap.app'))
 team_id(ENV['APPLE_TEAM_ID'])

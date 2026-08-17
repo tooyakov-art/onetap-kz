@@ -15,14 +15,14 @@ def connect_api_key
 end
 
 platform :ios do
-  desc 'Create the OneClick.kz identifier and App Store Connect record once'
+  desc 'Create the OneTap.kz identifier and App Store Connect record once'
   lane :bootstrap do
     api_key = connect_api_key
-    app_name = ENV.fetch('APP_NAME', 'OneClick.kz')
-    app_sku = ENV.fetch('APP_SKU', 'ONECLICK-KZ-IOS')
+    app_name = ENV.fetch('APP_NAME', 'OneTap.kz')
+    app_sku = ENV.fetch('APP_SKU', 'ONETAP-KZ-IOS')
     produce(
       api_key: api_key,
-      app_identifier: ENV.fetch('BUNDLE_ID', 'kz.oneclick.app'),
+      app_identifier: ENV.fetch('BUNDLE_ID', 'kz.onetap.app'),
       app_name: app_name,
       sku: app_sku,
       language: 'ru-RU',
@@ -36,7 +36,7 @@ platform :ios do
   lane :beta do
     setup_ci
     api_key = connect_api_key
-    bundle_id = ENV.fetch('BUNDLE_ID', 'kz.oneclick.app')
+    bundle_id = ENV.fetch('BUNDLE_ID', 'kz.onetap.app')
     repository_token = Base64.strict_encode64("x-access-token:#{ENV.fetch('GITHUB_TOKEN')}")
 
     match(
@@ -98,7 +98,7 @@ platform :ios do
       ipa: ipa,
       skip_waiting_for_build_processing: false,
       distribute_external: false,
-      changelog: 'Первая внутренняя beta OneClick.kz: каталог поставщиков, прайс, общая корзина и статусы.'
+      changelog: 'Первая внутренняя beta OneTap.kz: каталог поставщиков, прайс, общая корзина и статусы.'
     )
   end
 end

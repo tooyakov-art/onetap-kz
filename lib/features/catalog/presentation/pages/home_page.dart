@@ -129,7 +129,7 @@ class _BrandTitle extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('OneClick.kz', style: theme.textTheme.titleLarge),
+        Text('OneTap.kz', style: theme.textTheme.titleLarge),
         Text('для баров и ресторанов', style: theme.textTheme.bodySmall),
       ],
     );

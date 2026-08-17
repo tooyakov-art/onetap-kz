@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:oneclick_kz/features/catalog/data/demo_catalog_repository.dart';
-import 'package:oneclick_kz/features/order/application/order_draft.dart';
+import 'package:onetap_kz/features/catalog/data/demo_catalog_repository.dart';
+import 'package:onetap_kz/features/order/application/order_draft.dart';
 
 void main() {
   const catalog = DemoCatalogRepository();

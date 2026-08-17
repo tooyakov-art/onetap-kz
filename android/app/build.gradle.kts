@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "kz.oneclick.app"
+    namespace = "kz.onetap.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -15,7 +15,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "kz.oneclick.app"
+        applicationId = "kz.onetap.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

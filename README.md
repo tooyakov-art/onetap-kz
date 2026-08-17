@@ -1,4 +1,4 @@
-# OneClick.kz
+# OneTap.kz
 
 Flutter beta for bars and restaurants to place one combined order with several
 suppliers. The client app keeps quantities while switching between suppliers,
@@ -12,7 +12,7 @@ mode contains incoming requests and warehouse-oriented order details.
 - exact KWS Bushmills volumes and prices from the supplied price list;
 - quantity controls, shared cart, delivery date, comments, and one-tap submit;
 - no in-app payment; invoices are handled separately or through WhatsApp;
-- app identifier: `kz.oneclick.app`;
+- app identifier: `kz.onetap.app`;
 - version: `0.1.0+1`.
 
 ## Verification

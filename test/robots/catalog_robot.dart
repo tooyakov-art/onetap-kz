@@ -7,7 +7,7 @@ class CatalogRobot {
   final WidgetTester tester;
 
   void expectHomeVisible() {
-    expect(find.text('OneClick.kz'), findsOneWidget);
+    expect(find.text('OneTap.kz'), findsOneWidget);
     expect(find.byKey(const ValueKey('supplier-kws')), findsOneWidget);
   }
 

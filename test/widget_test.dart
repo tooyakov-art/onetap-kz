@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:oneclick_kz/app/oneclick_app.dart';
+import 'package:onetap_kz/app/onetap_app.dart';
 
 import 'robots/catalog_robot.dart';
 
@@ -9,7 +9,7 @@ void main() {
   ) async {
     final robot = CatalogRobot(tester);
 
-    await tester.pumpWidget(const OneClickApp());
+    await tester.pumpWidget(const OneTapApp());
     await tester.pumpAndSettle();
 
     robot.expectHomeVisible();
