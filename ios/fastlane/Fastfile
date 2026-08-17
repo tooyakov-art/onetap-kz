@@ -1,4 +1,5 @@
 require 'base64'
+require 'fileutils'
 
 default_platform(:ios)
 
@@ -60,7 +61,33 @@ platform :ios do
 
     build_number = ENV.fetch('BUILD_NUMBER', '1')
     project_root = File.expand_path('../..', __dir__)
-    export_options = File.join(project_root, 'ios', 'ExportOptions.plist')
+    export_options = File.join(project_root, 'build', 'ExportOptions.generated.plist')
+    FileUtils.mkdir_p(File.dirname(export_options))
+    File.write(export_options, <<~PLIST)
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+        <key>method</key>
+        <string>app-store-connect</string>
+        <key>signingStyle</key>
+        <string>manual</string>
+        <key>teamID</key>
+        <string>#{ENV.fetch('APPLE_TEAM_ID')}</string>
+        <key>signingCertificate</key>
+        <string>Apple Distribution</string>
+        <key>provisioningProfiles</key>
+        <dict>
+          <key>#{bundle_id}</key>
+          <string>match AppStore #{bundle_id}</string>
+        </dict>
+        <key>stripSwiftSymbols</key>
+        <true/>
+        <key>uploadSymbols</key>
+        <true/>
+      </dict>
+      </plist>
+    PLIST
     sh("cd '#{project_root}' && flutter build ipa --release --build-number #{build_number} --export-options-plist='#{export_options}'")
 
     ipa = Dir[File.join(project_root, 'build', 'ios', 'ipa', '*.ipa')].first
