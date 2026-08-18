@@ -46,3 +46,29 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Secrets and signing material
+.env
+.env.*
+!.env.example
+**/local.properties
+**/key.properties
+**/GoogleService-Info.plist
+**/google-services.json
+*.jks
+*.keystore
+*.p8
+*.p12
+*.pem
+*.mobileprovision
+credentials/
+secrets/
+
+# Private legal, identity and delivery materials must never enter Git
+deliverables/
+private/
+legal-private/
+*.doc
+*.docx
+*.pdf
+*.zip
