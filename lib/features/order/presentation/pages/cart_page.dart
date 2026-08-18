@@ -143,7 +143,7 @@ class _CartPageState extends State<CartPage> {
               onPressed: _submit,
               icon: const Icon(Icons.send_rounded),
               label: Text(
-                'Отправить всем · ${formatMoney(widget.orderDraft.total(widget.catalog))}',
+                'Сформировать заказ · ${formatMoney(widget.orderDraft.total(widget.catalog))}',
               ),
             ),
           );
@@ -153,9 +153,11 @@ class _CartPageState extends State<CartPage> {
   }
 
   void _submit() {
-    final supplierCount = widget.orderDraft.groupedLines(widget.catalog).length;
+    final grouped = widget.orderDraft.groupedLines(widget.catalog);
+    final supplierCount = grouped.length;
     final itemCount = widget.orderDraft.itemCount;
     final total = widget.orderDraft.total(widget.catalog);
+    final orderText = _formatOrder(grouped, total);
     widget.orderDraft.clear();
     Navigator.of(context).pushReplacement(
       CupertinoPageRoute<void>(
@@ -164,9 +166,38 @@ class _CartPageState extends State<CartPage> {
           itemCount: itemCount,
           total: total,
           deliveryDate: _deliveryDate,
+          orderText: orderText,
         ),
       ),
     );
+  }
+
+  String _formatOrder(Map<Supplier, List<OrderLine>> grouped, int total) {
+    final buffer = StringBuffer()
+      ..writeln('Заказ OneTap.kz')
+      ..writeln('Доставка: $_deliveryDate');
+
+    final comment = _commentController.text.trim();
+    if (comment.isNotEmpty) {
+      buffer.writeln('Комментарий: $comment');
+    }
+
+    for (final entry in grouped.entries) {
+      buffer
+        ..writeln()
+        ..writeln(entry.key.name);
+      for (final line in entry.value) {
+        buffer.writeln(
+          '${line.product.name} · ${line.product.volume} · '
+          '${line.quantity} шт. · ${formatMoney(line.total)}',
+        );
+      }
+    }
+
+    buffer
+      ..writeln()
+      ..write('Итого: ${formatMoney(total)}');
+    return buffer.toString();
   }
 }
 

@@ -44,7 +44,18 @@ class CatalogRobot {
 
   void expectCartReadyToSend() {
     expect(find.text('Общий заказ'), findsOneWidget);
-    expect(find.textContaining('Отправить всем'), findsOneWidget);
+    expect(find.textContaining('Сформировать заказ'), findsOneWidget);
     expect(find.textContaining('1 заявки'), findsOneWidget);
+  }
+
+  Future<void> createOrder() async {
+    await tester.tap(find.textContaining('Сформировать заказ'));
+    await tester.pumpAndSettle();
+  }
+
+  void expectOrderCreated() {
+    expect(find.text('Заказ сформирован'), findsOneWidget);
+    expect(find.text('Скопировать заказ'), findsOneWidget);
+    expect(find.text('1 шт.'), findsOneWidget);
   }
 }
