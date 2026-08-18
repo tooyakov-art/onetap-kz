@@ -1,5 +1,9 @@
 # OneTap.kz
 
+> **PRIVATE AND PROPRIETARY.** This repository contains confidential source
+> code. No permission to copy, distribute, disclose, sublicense, publish, or
+> use it is granted by access to the repository.
+
 Flutter beta for bars and restaurants to place one combined order with several
 suppliers. The client app keeps quantities while switching between suppliers,
 splits the shared cart by company, and shows delivery statuses. The supplier
@@ -26,3 +30,13 @@ flutter build web --release
 ```
 
 TestFlight setup is documented in [TESTFLIGHT.md](TESTFLIGHT.md).
+
+## Ownership and permitted use
+
+Copyright © 2026 Туяков Диас Мухтарович. All rights reserved.
+
+The project is not open source. Use is permitted only under a separate written
+agreement signed by the copyright owner. Repository access, a clone, a build,
+or a test invitation does not transfer source-code ownership or exclusive
+rights. See [LICENSE](LICENSE), [COPYRIGHT.md](COPYRIGHT.md), and
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
