@@ -16,7 +16,7 @@ end
 
 def build_signed_ipa(api_key)
   bundle_id = ENV.fetch('BUNDLE_ID', 'kz.onetap.app')
-  repository_token = Base64.strict_encode64("x-access-token:#{ENV.fetch('GITHUB_TOKEN')}")
+  repository_token = Base64.strict_encode64("x-access-token:#{ENV.fetch('MATCH_GIT_TOKEN')}")
 
   match(
     type: 'appstore',

@@ -27,10 +27,10 @@ jobs:
     env:
       BUNDLE_ID: ${{ inputs.bundle_id }}
       APP_VERSION: ${{ inputs.app_version }}
-      MATCH_GIT_URL: https://github.com/${{ github.repository }}.git
+      MATCH_GIT_URL: https://github.com/tooyakov-art/onetap-kz-signing.git
       MATCH_GIT_BRANCH: certificates
       BUILD_NUMBER: ${{ github.run_number }}
-      GITHUB_TOKEN: ${{ github.token }}
+      MATCH_GIT_TOKEN: ${{ secrets.MATCH_GIT_TOKEN }}
       ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
       ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
       ASC_API_KEY_BASE64: ${{ secrets.ASC_API_KEY_BASE64 }}
@@ -44,7 +44,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for name in ASC_API_KEY_ID ASC_API_ISSUER_ID ASC_API_KEY_BASE64 APPLE_TEAM_ID MATCH_PASSWORD; do
+          for name in ASC_API_KEY_ID ASC_API_ISSUER_ID ASC_API_KEY_BASE64 APPLE_TEAM_ID MATCH_PASSWORD MATCH_GIT_TOKEN; do
             if [[ -z "${!name:-}" ]]; then
               echo "Missing required secret: $name"
               exit 1
