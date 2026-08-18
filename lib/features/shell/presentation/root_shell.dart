@@ -16,6 +16,7 @@ class RootShell extends StatefulWidget {
   @override
   State<RootShell> createState() => _RootShellState();
 }
+
 class _RootShellState extends State<RootShell> {
   int _selectedIndex = 0;
 
@@ -68,6 +69,7 @@ class _RootShellState extends State<RootShell> {
     );
   }
 }
+
 class OrdersPage extends StatelessWidget {
   const OrdersPage({super.key});
 
@@ -102,6 +104,7 @@ class OrdersPage extends StatelessWidget {
     );
   }
 }
+
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
@@ -121,10 +124,7 @@ class ProfilePage extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           Center(
-            child: Text(
-              'Профиль заведения',
-              style: theme.textTheme.titleLarge,
-            ),
+            child: Text('Профиль заведения', style: theme.textTheme.titleLarge),
           ),
           const SizedBox(height: AppSpacing.xxs),
           Center(
@@ -150,6 +150,7 @@ class ProfilePage extends StatelessWidget {
     );
   }
 }
+
 class _ProfileTile extends StatelessWidget {
   const _ProfileTile({
     required this.icon,
