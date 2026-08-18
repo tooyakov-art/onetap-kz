@@ -1,0 +1,71 @@
+name: Prepare App Store release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bundle_id:
+        description: Existing App Store Connect bundle identifier
+        required: true
+        type: string
+        default: kz.oneclick.beta
+      app_version:
+        description: Public version
+        required: true
+        type: string
+        default: 0.1.0
+
+concurrency:
+  group: onetap-appstore-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: macos-26
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    env:
+      BUNDLE_ID: ${{ inputs.bundle_id }}
+      APP_VERSION: ${{ inputs.app_version }}
+      MATCH_GIT_URL: https://github.com/${{ github.repository }}.git
+      MATCH_GIT_BRANCH: certificates
+      BUILD_NUMBER: ${{ github.run_number }}
+      GITHUB_TOKEN: ${{ github.token }}
+      ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+      ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+      ASC_API_KEY_BASE64: ${{ secrets.ASC_API_KEY_BASE64 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required Apple secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in ASC_API_KEY_ID ASC_API_ISSUER_ID ASC_API_KEY_BASE64 APPLE_TEAM_ID MATCH_PASSWORD; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "Missing required secret: $name"
+              exit 1
+            fi
+          done
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed lib test
+      - run: flutter analyze --fatal-infos
+      - run: flutter test
+
+      - name: Build and upload public release candidate
+        run: bundle exec fastlane ios release_candidate
+        working-directory: ios

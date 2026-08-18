@@ -14,6 +14,66 @@ def connect_api_key
   )
 end
 
+def build_signed_ipa(api_key)
+  bundle_id = ENV.fetch('BUNDLE_ID', 'kz.onetap.app')
+  repository_token = Base64.strict_encode64("x-access-token:#{ENV.fetch('GITHUB_TOKEN')}")
+
+  match(
+    type: 'appstore',
+    app_identifier: bundle_id,
+    team_id: ENV.fetch('APPLE_TEAM_ID'),
+    api_key: api_key,
+    readonly: false,
+    git_url: ENV.fetch('MATCH_GIT_URL'),
+    git_branch: ENV.fetch('MATCH_GIT_BRANCH', 'certificates'),
+    git_basic_authorization: repository_token
+  )
+
+  update_code_signing_settings(
+    use_automatic_signing: false,
+    path: 'Runner.xcodeproj',
+    team_id: ENV.fetch('APPLE_TEAM_ID'),
+    bundle_identifier: bundle_id,
+    profile_name: "match AppStore #{bundle_id}",
+    code_sign_identity: 'Apple Distribution'
+  )
+
+  build_number = ENV.fetch('BUILD_NUMBER', '1')
+  project_root = File.expand_path('../..', __dir__)
+  export_options = File.join(project_root, 'build', 'ExportOptions.generated.plist')
+  FileUtils.mkdir_p(File.dirname(export_options))
+  File.write(export_options, <<~PLIST)
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+    <dict>
+      <key>method</key>
+      <string>app-store-connect</string>
+      <key>signingStyle</key>
+      <string>manual</string>
+      <key>teamID</key>
+      <string>#{ENV.fetch('APPLE_TEAM_ID')}</string>
+      <key>signingCertificate</key>
+      <string>Apple Distribution</string>
+      <key>provisioningProfiles</key>
+      <dict>
+        <key>#{bundle_id}</key>
+        <string>match AppStore #{bundle_id}</string>
+      </dict>
+      <key>stripSwiftSymbols</key>
+      <true/>
+      <key>uploadSymbols</key>
+      <true/>
+    </dict>
+    </plist>
+  PLIST
+  sh("cd '#{project_root}' && flutter build ipa --release --build-number #{build_number} --export-options-plist='#{export_options}'")
+
+  ipa = Dir[File.join(project_root, 'build', 'ios', 'ipa', '*.ipa')].first
+  UI.user_error!('Flutter did not produce an IPA') unless ipa
+  ipa
+end
+
 platform :ios do
   desc 'Create the OneTap.kz identifier and App Store Connect record once'
   lane :bootstrap do
@@ -36,62 +96,7 @@ platform :ios do
   lane :beta do
     setup_ci
     api_key = connect_api_key
-    bundle_id = ENV.fetch('BUNDLE_ID', 'kz.onetap.app')
-    repository_token = Base64.strict_encode64("x-access-token:#{ENV.fetch('GITHUB_TOKEN')}")
-
-    match(
-      type: 'appstore',
-      app_identifier: bundle_id,
-      team_id: ENV.fetch('APPLE_TEAM_ID'),
-      api_key: api_key,
-      readonly: false,
-      git_url: ENV.fetch('MATCH_GIT_URL'),
-      git_branch: ENV.fetch('MATCH_GIT_BRANCH', 'certificates'),
-      git_basic_authorization: repository_token
-    )
-
-    update_code_signing_settings(
-      use_automatic_signing: false,
-      path: 'Runner.xcodeproj',
-      team_id: ENV.fetch('APPLE_TEAM_ID'),
-      bundle_identifier: bundle_id,
-      profile_name: "match AppStore #{bundle_id}",
-      code_sign_identity: 'Apple Distribution'
-    )
-
-    build_number = ENV.fetch('BUILD_NUMBER', '1')
-    project_root = File.expand_path('../..', __dir__)
-    export_options = File.join(project_root, 'build', 'ExportOptions.generated.plist')
-    FileUtils.mkdir_p(File.dirname(export_options))
-    File.write(export_options, <<~PLIST)
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>method</key>
-        <string>app-store-connect</string>
-        <key>signingStyle</key>
-        <string>manual</string>
-        <key>teamID</key>
-        <string>#{ENV.fetch('APPLE_TEAM_ID')}</string>
-        <key>signingCertificate</key>
-        <string>Apple Distribution</string>
-        <key>provisioningProfiles</key>
-        <dict>
-          <key>#{bundle_id}</key>
-          <string>match AppStore #{bundle_id}</string>
-        </dict>
-        <key>stripSwiftSymbols</key>
-        <true/>
-        <key>uploadSymbols</key>
-        <true/>
-      </dict>
-      </plist>
-    PLIST
-    sh("cd '#{project_root}' && flutter build ipa --release --build-number #{build_number} --export-options-plist='#{export_options}'")
-
-    ipa = Dir[File.join(project_root, 'build', 'ios', 'ipa', '*.ipa')].first
-    UI.user_error!('Flutter did not produce an IPA') unless ipa
+    ipa = build_signed_ipa(api_key)
 
     upload_to_testflight(
       api_key: api_key,
@@ -99,6 +104,26 @@ platform :ios do
       skip_waiting_for_build_processing: false,
       distribute_external: false,
       changelog: 'Первая внутренняя beta OneTap.kz: каталог поставщиков, прайс, общая корзина и статусы.'
+    )
+  end
+
+  desc 'Upload the public OneTap.kz 0.1.0 release candidate and App Store metadata'
+  lane :release_candidate do
+    setup_ci
+    api_key = connect_api_key
+    ipa = build_signed_ipa(api_key)
+
+    upload_to_app_store(
+      api_key: api_key,
+      ipa: ipa,
+      app_identifier: ENV.fetch('BUNDLE_ID'),
+      app_version: ENV.fetch('APP_VERSION', '0.1.0'),
+      metadata_path: File.join(__dir__, 'metadata'),
+      skip_screenshots: true,
+      submit_for_review: false,
+      automatic_release: false,
+      force: true,
+      run_precheck_before_submit: true
     )
   end
 end

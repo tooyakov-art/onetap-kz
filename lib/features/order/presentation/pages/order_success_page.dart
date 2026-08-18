@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/formatters.dart';
 import '../../../../core/theme/app_tokens.dart';
@@ -10,12 +11,14 @@ class OrderSuccessPage extends StatelessWidget {
     required this.itemCount,
     required this.total,
     required this.deliveryDate,
+    required this.orderText,
   });
 
   final int supplierCount;
   final int itemCount;
   final int total;
   final String deliveryDate;
+  final String orderText;
 
   @override
   Widget build(BuildContext context) {
@@ -44,10 +47,10 @@ class OrderSuccessPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
-              Text('Заказ отправлен', style: theme.textTheme.headlineLarge),
+              Text('Заказ сформирован', style: theme.textTheme.headlineLarge),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Один клик создал $supplierCount отдельные заявки. Каждая компания получила только свои товары.',
+                'OneTap подготовил $supplierCount отдельные заявки. Скопируйте заказ и отправьте его поставщикам в рабочий чат.',
                 style: theme.textTheme.bodyLarge,
               ),
               const SizedBox(height: AppSpacing.xxl),
@@ -55,7 +58,22 @@ class OrderSuccessPage extends StatelessWidget {
               _SummaryRow(label: 'Доставка', value: deliveryDate),
               _SummaryRow(label: 'Общая сумма', value: formatMoney(total)),
               const Spacer(),
+              FilledButton.icon(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: orderText));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Заказ скопирован')),
+                  );
+                },
+                icon: const Icon(Icons.copy_all_rounded),
+                label: const Text('Скопировать заказ'),
+              ),
+              const SizedBox(height: AppSpacing.sm),
               FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.surface,
+                  foregroundColor: AppColors.ink,
+                ),
                 onPressed: () =>
                     Navigator.of(context).popUntil((route) => route.isFirst),
                 child: const Text('Вернуться на главную'),

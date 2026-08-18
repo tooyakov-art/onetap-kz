@@ -18,5 +18,7 @@ void main() {
     await robot.addBushmillsOriginal();
     await robot.openCart();
     robot.expectCartReadyToSend();
+    await robot.createOrder();
+    robot.expectOrderCreated();
   });
 }
