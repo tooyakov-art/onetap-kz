@@ -119,11 +119,12 @@ platform :ios do
       app_identifier: ENV.fetch('BUNDLE_ID'),
       app_version: ENV.fetch('APP_VERSION', '0.1.0'),
       metadata_path: File.join(__dir__, 'metadata'),
+      skip_metadata: true,
       skip_screenshots: true,
       submit_for_review: false,
       automatic_release: false,
       force: true,
-      run_precheck_before_submit: true
+      run_precheck_before_submit: false
     )
   end
 end
