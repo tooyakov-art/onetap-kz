@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_tokens.dart';
 import '../../catalog/domain/catalog_models.dart';
@@ -51,9 +53,9 @@ class _RootShellState extends State<RootShell> {
             label: 'Заказы',
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline_rounded),
-            selectedIcon: Icon(Icons.person_rounded),
-            label: 'Профиль',
+            icon: Icon(Icons.info_outline_rounded),
+            selectedIcon: Icon(Icons.info_rounded),
+            label: 'О приложении',
           ),
         ],
       ),
@@ -108,11 +110,18 @@ class OrdersPage extends StatelessWidget {
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
+  static final _privacyUri = Uri.parse(
+    'https://onetap-kz.web.app/privacy.html',
+  );
+  static final _supportUri = Uri.parse(
+    'https://onetap-kz.web.app/support.html',
+  );
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Профиль')),
+      appBar: AppBar(title: const Text('О приложении')),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.md),
         children: [
@@ -124,7 +133,7 @@ class ProfilePage extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           Center(
-            child: Text('Профиль заведения', style: theme.textTheme.titleLarge),
+            child: Text('OneTap.kz', style: theme.textTheme.titleLarge),
           ),
           const SizedBox(height: AppSpacing.xxs),
           Center(
@@ -135,15 +144,21 @@ class ProfilePage extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xxl),
           const _ProfileTile(
-            icon: Icons.storefront_outlined,
-            title: 'Рабочее пространство',
-            subtitle: 'Настройка появится после подключения',
+            icon: Icons.shield_outlined,
+            title: 'Конфиденциальность',
+            subtitle: 'Заказы обрабатываются только на устройстве',
           ),
           const SizedBox(height: AppSpacing.sm),
-          const _ProfileTile(
-            icon: Icons.shield_outlined,
-            title: 'Данные',
-            subtitle: 'Заказы обрабатываются только на устройстве',
+          _ExternalLinkTile(
+            icon: Icons.policy_outlined,
+            title: 'Политика конфиденциальности',
+            uri: _privacyUri,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          _ExternalLinkTile(
+            icon: Icons.support_agent_rounded,
+            title: 'Поддержка',
+            uri: _supportUri,
           ),
         ],
       ),
@@ -174,6 +189,47 @@ class _ProfileTile extends StatelessWidget {
         title: Text(title),
         subtitle: Text(subtitle),
       ),
+    );
+  }
+}
+
+class _ExternalLinkTile extends StatelessWidget {
+  const _ExternalLinkTile({
+    required this.icon,
+    required this.title,
+    required this.uri,
+  });
+
+  final IconData icon;
+  final String title;
+  final Uri uri;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(AppRadii.md)),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(AppSpacing.md),
+        leading: Icon(icon),
+        title: Text(title),
+        trailing: const Icon(Icons.open_in_new_rounded),
+        onTap: () => _openLink(context),
+      ),
+    );
+  }
+
+  Future<void> _openLink(BuildContext context) async {
+    if (await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      return;
+    }
+    await Clipboard.setData(ClipboardData(text: uri.toString()));
+    if (!context.mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Ссылка скопирована')),
     );
   }
 }

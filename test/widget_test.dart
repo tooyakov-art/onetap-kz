@@ -21,4 +21,21 @@ void main() {
     await robot.createOrder();
     robot.expectOrderCreated();
   });
+
+  testWidgets('should expose privacy and support inside the app', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const OneTapApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('О приложении'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Политика конфиденциальности'), findsOneWidget);
+    expect(find.text('Поддержка'), findsOneWidget);
+    expect(
+      find.text('Заказы обрабатываются только на устройстве'),
+      findsOneWidget,
+    );
+  });
 }
