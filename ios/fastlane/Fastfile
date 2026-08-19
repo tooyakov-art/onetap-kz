@@ -1,5 +1,22 @@
 require 'base64'
+require 'deliver/upload_metadata'
 require 'fileutils'
+
+# Fastlane 2.238 fetches review attachments even when none are configured.
+# A first App Store version has no review-detail resource yet, so Apple returns
+# an empty response. Skip only that unnecessary fetch; real attachments still
+# use Fastlane's original implementation.
+module FirstVersionReviewAttachmentGuard
+  def review_attachment_file(version)
+    return unless options[:app_review_attachment_file]
+
+    super
+  end
+
+  private :review_attachment_file
+end
+
+Deliver::UploadMetadata.prepend(FirstVersionReviewAttachmentGuard)
 
 default_platform(:ios)
 
