@@ -9,9 +9,11 @@ void main() {
   testWidgets('captures the five truthful App Store screens', (tester) async {
     await tester.pumpWidget(const OneTapApp());
     await tester.pumpAndSettle();
+    await _finishVisualTransition(tester);
     await binding.takeScreenshot('01-suppliers');
 
     await _tapVisible(tester, find.byKey(const ValueKey('supplier-kws')));
+    await _finishVisualTransition(tester);
     await binding.takeScreenshot('02-kws-catalog');
 
     final bushmills = find.byKey(
@@ -39,11 +41,14 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await _finishVisualTransition(tester);
     await tester.tap(find.byKey(const ValueKey('catalog-open-cart')));
     await tester.pumpAndSettle();
+    await _finishVisualTransition(tester);
     await binding.takeScreenshot('04-multi-supplier-cart');
 
     await _tapVisible(tester, find.textContaining('Сформировать заказ'));
+    await _finishVisualTransition(tester);
     await binding.takeScreenshot('05-order-created');
   });
 }
@@ -52,5 +57,10 @@ Future<void> _tapVisible(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
   await tester.pumpAndSettle();
   await tester.tap(finder);
+  await tester.pumpAndSettle();
+}
+
+Future<void> _finishVisualTransition(WidgetTester tester) async {
+  await tester.pump(const Duration(milliseconds: 800));
   await tester.pumpAndSettle();
 }
