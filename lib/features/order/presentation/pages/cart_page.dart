@@ -40,13 +40,7 @@ class _CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 88,
-        title: const Padding(
-          padding: EdgeInsets.only(top: AppSpacing.sm),
-          child: Text('Общий заказ'),
-        ),
-      ),
+      appBar: AppBar(title: const Text('Общий заказ')),
       body: AnimatedBuilder(
         animation: widget.orderDraft,
         builder: (context, child) {
