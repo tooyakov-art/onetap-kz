@@ -26,7 +26,7 @@
 - Signed permission covers every logo and catalog included in the binary
 - App Privacy answers are published
 - Age rating questionnaire is saved
-- Build `0.1.0 (3)` is selected
+- Build `0.1.0 (4)` is selected
 - Five real iPhone screenshots are processed
 - Support and privacy URLs open successfully
 - The release remains manual after approval
