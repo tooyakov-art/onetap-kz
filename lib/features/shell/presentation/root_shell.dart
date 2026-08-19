@@ -132,9 +132,7 @@ class ProfilePage extends StatelessWidget {
             child: Icon(Icons.storefront_rounded),
           ),
           const SizedBox(height: AppSpacing.md),
-          Center(
-            child: Text('OneTap.kz', style: theme.textTheme.titleLarge),
-          ),
+          Center(child: Text('OneTap.kz', style: theme.textTheme.titleLarge)),
           const SizedBox(height: AppSpacing.xxs),
           Center(
             child: Text(
@@ -228,9 +226,8 @@ class _ExternalLinkTile extends StatelessWidget {
     if (!context.mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Ссылка скопирована')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Ссылка скопирована')));
   }
 }
 // End of OneTap.kz shell widgets

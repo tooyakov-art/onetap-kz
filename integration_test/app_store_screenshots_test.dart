@@ -29,10 +29,7 @@ void main() {
 
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
-    await _tapVisible(
-      tester,
-      find.byKey(const ValueKey('supplier-coca-cola')),
-    );
+    await _tapVisible(tester, find.byKey(const ValueKey('supplier-coca-cola')));
     final cola = find.byKey(const ValueKey('product-coke-05'));
     await tester.ensureVisible(cola);
     await tester.tap(
