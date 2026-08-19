@@ -1,0 +1,5 @@
+OneTap.kz 0.1 does not require an account or a demo login.
+
+All features are available immediately after launch. The app contains a local supplier catalog and creates a draft order on the device. It does not process payments and does not transmit orders to suppliers. The user copies the generated order text and sends it through their own working communication channel.
+
+The app does not collect user data and does not include analytics or advertising SDKs.

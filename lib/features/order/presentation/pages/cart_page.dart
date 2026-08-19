@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/delivery_dates.dart';
 import '../../../../core/formatters.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../catalog/domain/catalog_models.dart';
@@ -19,7 +20,15 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
   final TextEditingController _commentController = TextEditingController();
-  String _deliveryDate = '20 августа';
+  late final List<DateTime> _deliveryDates;
+  late DateTime _deliveryDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _deliveryDates = upcomingDeliveryDates(DateTime.now());
+    _deliveryDate = _deliveryDates.first;
+  }
 
   @override
   void dispose() {
@@ -89,12 +98,12 @@ class _CartPageState extends State<CartPage> {
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: ['20 августа', '21 августа', '22 августа']
+                  children: _deliveryDates
                       .map(
                         (date) => Padding(
                           padding: const EdgeInsets.only(right: AppSpacing.xs),
                           child: ChoiceChip(
-                            label: Text(date),
+                            label: Text(formatDeliveryDate(date)),
                             selected: _deliveryDate == date,
                             onSelected: (_) =>
                                 setState(() => _deliveryDate = date),
@@ -165,7 +174,7 @@ class _CartPageState extends State<CartPage> {
           supplierCount: supplierCount,
           itemCount: itemCount,
           total: total,
-          deliveryDate: _deliveryDate,
+          deliveryDate: formatDeliveryDate(_deliveryDate),
           orderText: orderText,
         ),
       ),
@@ -175,7 +184,7 @@ class _CartPageState extends State<CartPage> {
   String _formatOrder(Map<Supplier, List<OrderLine>> grouped, int total) {
     final buffer = StringBuffer()
       ..writeln('Заказ OneTap.kz')
-      ..writeln('Доставка: $_deliveryDate');
+      ..writeln('Доставка: ${formatDeliveryDate(_deliveryDate)}');
 
     final comment = _commentController.text.trim();
     if (comment.isNotEmpty) {

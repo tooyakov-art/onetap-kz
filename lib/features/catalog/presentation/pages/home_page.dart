@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/delivery_dates.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../order/application/order_draft.dart';
 import '../../domain/catalog_models.dart';
@@ -142,6 +143,9 @@ class _VenueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final nextDelivery = formatDeliveryDate(
+      upcomingDeliveryDates(DateTime.now(), count: 1).single,
+    );
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: AppColors.ink,
@@ -187,7 +191,7 @@ class _VenueCard extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
-                  'Ближайшая доставка · 20 августа',
+                  'Ближайшая доставка · $nextDelivery',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: AppColors.whiteSubtle,
                   ),

@@ -10,7 +10,7 @@ class DemoCatalogRepository implements CatalogRepository {
       caption: 'Вино и крепкие напитки',
       category: 'Алкоголь',
       brand: SupplierBrand.kws,
-      deliveryLabel: 'доставка 20 августа',
+      deliveryLabel: 'ближайшая доставка',
     ),
     Supplier(
       id: 'coca-cola',
@@ -18,7 +18,7 @@ class DemoCatalogRepository implements CatalogRepository {
       caption: 'Напитки и вода',
       category: 'Напитки',
       brand: SupplierBrand.cocaCola,
-      deliveryLabel: 'доставка 20 августа',
+      deliveryLabel: 'ближайшая доставка',
     ),
     Supplier(
       id: 'pepsi',
@@ -26,7 +26,7 @@ class DemoCatalogRepository implements CatalogRepository {
       caption: 'Напитки и снеки',
       category: 'Напитки',
       brand: SupplierBrand.pepsi,
-      deliveryLabel: 'доставка 21 августа',
+      deliveryLabel: 'ближайшая доставка',
     ),
   ];
 

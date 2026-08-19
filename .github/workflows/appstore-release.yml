@@ -3,6 +3,16 @@ name: Prepare App Store release
 on:
   workflow_dispatch:
     inputs:
+      operation:
+        description: Release operation
+        required: true
+        type: choice
+        options:
+          - release_candidate
+          - screenshots
+          - metadata
+          - submit_review
+        default: release_candidate
       bundle_id:
         description: Existing App Store Connect bundle identifier
         required: true
@@ -13,6 +23,16 @@ on:
         required: true
         type: string
         default: 0.1.0
+      upload_screenshots:
+        description: Upload screenshots together with metadata
+        required: true
+        type: boolean
+        default: false
+      brand_rights_confirmed:
+        description: Written rights for third-party brands are available
+        required: true
+        type: boolean
+        default: false
 
 concurrency:
   group: onetap-appstore-release
@@ -36,15 +56,22 @@ jobs:
       ASC_API_KEY_BASE64: ${{ secrets.ASC_API_KEY_BASE64 }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      UPLOAD_SCREENSHOTS: ${{ inputs.upload_screenshots }}
+      BRAND_RIGHTS_CONFIRMED: ${{ inputs.brand_rights_confirmed }}
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Check required Apple secrets
+        if: inputs.operation != 'screenshots'
         shell: bash
         run: |
           set -euo pipefail
-          for name in ASC_API_KEY_ID ASC_API_ISSUER_ID ASC_API_KEY_BASE64 APPLE_TEAM_ID MATCH_PASSWORD MATCH_GIT_TOKEN; do
+          required=(ASC_API_KEY_ID ASC_API_ISSUER_ID ASC_API_KEY_BASE64)
+          if [[ "${{ inputs.operation }}" == "release_candidate" ]]; then
+            required+=(APPLE_TEAM_ID MATCH_PASSWORD MATCH_GIT_TOKEN)
+          fi
+          for name in "${required[@]}"; do
             if [[ -z "${!name:-}" ]]; then
               echo "Missing required secret: $name"
               exit 1
@@ -52,20 +79,86 @@ jobs:
           done
 
       - uses: subosito/flutter-action@v2
+        if: inputs.operation == 'release_candidate' || inputs.operation == 'screenshots'
         with:
           channel: stable
           cache: true
 
       - uses: ruby/setup-ruby@v1
+        if: inputs.operation != 'screenshots'
         with:
           ruby-version: "3.3"
           bundler-cache: true
 
-      - run: flutter pub get
-      - run: dart format --output=none --set-exit-if-changed lib test
-      - run: flutter analyze --fatal-infos
-      - run: flutter test
+      - if: inputs.operation == 'release_candidate' || inputs.operation == 'screenshots'
+        run: flutter pub get
+      - if: inputs.operation == 'release_candidate'
+        run: dart format --output=none --set-exit-if-changed lib test integration_test test_driver
+      - if: inputs.operation == 'release_candidate'
+        run: flutter analyze --fatal-infos
+      - if: inputs.operation == 'release_candidate'
+        run: flutter test
 
       - name: Build and upload public release candidate
+        if: inputs.operation == 'release_candidate'
         run: bundle exec fastlane ios release_candidate
+        working-directory: ios
+
+      - name: Select and boot the largest available iPhone simulator
+        if: inputs.operation == 'screenshots'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/onetap-simulator-udid
+          import json, subprocess
+          data = json.loads(subprocess.check_output(['xcrun', 'simctl', 'list', 'devices', 'available', '-j']))
+          priorities = ['iPhone 17 Pro Max', 'iPhone 16 Pro Max', 'iPhone 15 Pro Max']
+          devices = [device for runtime in data['devices'].values() for device in runtime]
+          for name in priorities:
+              match = next((device for device in devices if device['name'] == name), None)
+              if match:
+                  print(match['udid'])
+                  raise SystemExit
+          raise SystemExit('No supported Pro Max iPhone simulator is available')
+          PY
+          DEVICE_UDID="$(cat /tmp/onetap-simulator-udid)"
+          xcrun simctl boot "$DEVICE_UDID" || true
+          xcrun simctl bootstatus "$DEVICE_UDID" -b
+          echo "DEVICE_UDID=$DEVICE_UDID" >> "$GITHUB_ENV"
+
+      - name: Capture truthful App Store screenshots
+        if: inputs.operation == 'screenshots'
+        run: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_store_screenshots_test.dart -d "$DEVICE_UDID"
+
+      - name: Validate screenshot set
+        if: inputs.operation == 'screenshots'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find build/app-store-screenshots -name '*.png' | wc -l | tr -d ' ')" = "5"
+          for screenshot in build/app-store-screenshots/*.png; do
+            width="$(sips -g pixelWidth "$screenshot" | awk '/pixelWidth/ {print $2}')"
+            height="$(sips -g pixelHeight "$screenshot" | awk '/pixelHeight/ {print $2}')"
+            case "${width}x${height}" in
+              1260x2736|1290x2796|1320x2868) ;;
+              *) echo "Unexpected App Store screenshot size: ${width}x${height} ($screenshot)"; exit 1 ;;
+            esac
+          done
+
+      - name: Upload screenshot artifact
+        if: inputs.operation == 'screenshots'
+        uses: actions/upload-artifact@v4
+        with:
+          name: onetap-app-store-screenshots
+          path: build/app-store-screenshots/*.png
+          if-no-files-found: error
+
+      - name: Upload App Store metadata
+        if: inputs.operation == 'metadata'
+        run: bundle exec fastlane ios upload_store_metadata
+        working-directory: ios
+
+      - name: Submit to App Review
+        if: inputs.operation == 'submit_review'
+        run: bundle exec fastlane ios submit_review
         working-directory: ios

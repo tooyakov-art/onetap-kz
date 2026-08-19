@@ -52,6 +52,7 @@ class _CatalogPageState extends State<CatalogPage> {
               isLabelVisible: widget.orderDraft.itemCount > 0,
               label: Text('${widget.orderDraft.itemCount}'),
               child: IconButton(
+                key: const ValueKey('catalog-open-cart'),
                 onPressed: widget.onOpenCart,
                 icon: const Icon(Icons.shopping_bag_outlined),
               ),
